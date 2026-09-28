@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Success 4 - Unit 1: My friends</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",sans-serif; background:#eef3f9; color:#172033; }
+#app { min-height:100vh; background-color:light-dark(#eef3f9,#0d1524); color:light-dark(#172033,#eef3ff); }
+.header { padding:28px 18px 22px; background:linear-gradient(135deg,#0f766e,#2563eb); color:#fff; }
+.wrap { width:min(900px,calc(100% - 28px)); margin:auto; }
+.kicker { font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; opacity:.9; }
+h1 { margin:7px 0 5px; font-size:clamp(28px,6vw,42px); }
+.subtitle { margin:0; opacity:.92; }
+.progress-wrap { margin-top:18px; }
+.progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:7px; }
+.progress { height:9px; background:rgba(255,255,255,.25); border-radius:999px; overflow:hidden; }
+.progress-bar { height:100%; width:0; background:#fff; transition:width .25s ease; }
+main { padding:24px 0 44px; }
+.card { background:light-dark(#fff,#151f31); border:1px solid light-dark(#dbe3ef,#2b3951); border-radius:18px; padding:22px; box-shadow:0 10px 28px rgba(16,24,40,.08); }
+.hidden { display:none; }
+.student h2 { margin:0 0 8px; font-size:22px; }
+.student p { margin:0 0 16px; color:light-dark(#5b667a,#adbad0); }
+label { display:block; font-weight:800; margin-bottom:7px; }
+input { width:100%; padding:13px 14px; border-radius:12px; border:1px solid light-dark(#d5deeb,#31415b); background:light-dark(#fbfdff,#101a2b); color:inherit; font-size:16px; }
+button { font:inherit; }
+.actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+.primary,.secondary { border:0; border-radius:12px; padding:12px 17px; font-weight:800; cursor:pointer; }
+.primary { background:#2563eb; color:#fff; }
+.secondary { background:light-dark(#e9eef7,#26334a); color:inherit; }
+.primary:disabled { opacity:.45; cursor:not-allowed; }
+.qnum { color:light-dark(#2563eb,#8db4ff); font-weight:800; font-size:14px; }
+.q { font-size:clamp(21px,4.2vw,29px); font-weight:800; line-height:1.25; margin:8px 0 9px; }
+.note { color:light-dark(#5b667a,#adbad0); font-size:14px; margin-bottom:16px; }
+.options { display:grid; gap:10px; }
+.option { width:100%; text-align:left; padding:14px 16px; border-radius:13px; border:1px solid light-dark(#d5deeb,#31415b); background:light-dark(#f9fbfe,#111a2a); color:inherit; cursor:pointer; }
+.option:hover { transform:translateY(-1px); }
+.option.correct { border-color:#16a34a; background:light-dark(#effcf3,#123421); }
+.option.wrong { border-color:#dc2626; background:light-dark(#fff2f2,#3b171c); }
+.option:disabled { cursor:default; }
+.feedback { min-height:24px; margin-top:14px; font-weight:800; }
+.result { text-align:center; }
+.score { font-size:56px; font-weight:900; margin:5px 0; }
+.muted { color:light-dark(#5b667a,#adbad0); }
+.review { margin-top:20px; text-align:left; display:grid; gap:9px; }
+.review-item { padding:11px 13px; border-radius:12px; border:1px solid light-dark(#dbe3ef,#2b3951); }
+@media(max-width:600px){ .card{padding:17px;} }
+</style>
+</head>
+<body>
+<div id="app">
+<header class="header"><div class="wrap">
+<div class="kicker">Global Success 4</div>
+<h1>Unit 1: My friends</h1>
+<p class="subtitle">Quiz từ vựng • 18 câu</p>
+<div class="progress-wrap"><div class="progress-label"><span id="progressText">Câu 1 / 18</span><span id="scoreTop">0 điểm</span></div><div class="progress"><div id="progressBar" class="progress-bar"></div></div></div>
+</div></header>
+<main class="wrap">
+<section id="studentCard" class="card student" style="display:none;">
+<h2>Thông tin học sinh</h2>
+<p>Nhập họ tên rồi bắt đầu làm bài.</p>
+<label for="name">Họ và tên</label>
+<input id="name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn A">
+<div class="actions"><button class="primary" id="start">Bắt đầu</button></div>
+<div id="nameError" class="feedback"></div>
+</section>
+<section id="quizCard" class="card">
+<div id="qnum" class="qnum"></div>
+<div id="q" class="q"></div>
+<div class="note">Chọn đáp án đúng.</div>
+<div id="opts" class="options"></div>
+<div id="feedback" class="feedback"></div>
+<div class="actions"><button class="primary" id="next" disabled>Câu tiếp theo</button><button class="secondary" id="restart">Làm lại</button></div>
+</section>
+<section id="resultCard" class="card hidden"><div class="result">
+<div class="qnum">HOÀN THÀNH</div>
+<div id="score" class="score">0/18</div>
+<div id="resultText" class="muted"></div>
+<button class="primary" id="again">Làm lại bài</button>
+<div id="review" class="review"></div>
+</div></section>
+</main>
+</div>
+<script>
+const questions = [
+ {vi:'Vương quốc Anh', a:'The United Kingdom (UK)', options:['The United Kingdom (UK)','The United States (US)','Australia','Thailand']},
+ {vi:'Nước Mỹ', a:'The United States (US)', options:['Canada','The United States (US)','China','India']},
+ {vi:'Nước Việt Nam', a:'Vietnam', options:['Vietnam','Malaysia','Singapore','Japan']},
+ {vi:'Nước Úc', a:'Australia', options:['Australia','Austria','America','Canada']},
+ {vi:'Nước Thái Lan', a:'Thailand', options:['Thailand','Taiwan','India','Japan']},
+ {vi:'Nước Singapo', a:'Singapore', options:['Singapore','Sri Lanka','South Korea','Malaysia']},
+ {vi:'Nước Ma-lai-xi-a', a:'Malaysia', options:['Malaysia','Malta','Mexico','Myanmar']},
+ {vi:'Nước Nhật Bản', a:'Japan', options:['China','Japan','Korea','India']},
+ {vi:'Bạn đến từ nước nào?', a:'Where are you from?', options:['Where are you from?','Where do you live?','How old are you?','What is your name?']},
+ {vi:'Anh ấy đến từ nước nào?', a:'Where is he from?', options:['Where is he from?','Where is she from?','Where are you from?','Who is he?']},
+ {vi:'Cô ấy đến từ nước nào?', a:'Where is she from?', options:['Where is he from?','Where is she from?','Where are they from?','Who is she?']},
+ {vi:'Tôi đến từ nước Việt Nam.', a:'I am from Vietnam.', options:['I am from Vietnam.','I live in Vietnam.','I go to Vietnam.','I am Vietnam.']},
+ {vi:'Anh ấy đến từ nước Nhật Bản', a:'He is from Japan.', options:['He is from Japan.','He is from China.','She is from Japan.','He lives in Japan.']},
+ {vi:'Cô ấy đến từ nước Thái Lan', a:'She is from Thailand.', options:['She is from Thailand.','He is from Thailand.','She is from Malaysia.','She lives in Thailand.']},
+ {vi:'Nước Trung Quốc', a:'China', options:['China','Chile','Japan','India']},
+ {vi:'Nước Ca na đa', a:'Canada', options:['Canada','Cambodia','China','Costa Rica']},
+ {vi:'Nước Ấn Độ', a:'India', options:['India','Indonesia','Iran','Iraq']},
+ {vi:'Nước Campuchia', a:'Cambodia', options:['Cambodia','Colombia','Canada','Cameroon']}
+];
+let i=0, score=0, selected=[], locked=false;
+const $=id=>document.getElementById(id);
+function render(){
+ locked=false; const x=questions[i];
+ $('qnum').textContent=`CÂU ${i+1}`; $('q').textContent=`“${x.vi}” tiếng Anh là gì?`;
+ $('progressText').textContent=`Câu ${i+1} / ${questions.length}`; $('scoreTop').textContent=`${score} điểm`;
+ $('progressBar').style.width=`${(i/questions.length)*100}%`; $('feedback').textContent=''; $('next').disabled=true; $('next').textContent=i===questions.length-1?'Xem kết quả':'Câu tiếp theo'; $('opts').innerHTML='';
+ x.options.forEach((o,n)=>{ const b=document.createElement('button'); b.className='option'; b.textContent=`${String.fromCharCode(65+n)}. ${o}`; b.onclick=()=>choose(o,b); $('opts').appendChild(b); });
+}
+function choose(v,b){ if(locked)return; locked=true; const x=questions[i]; const ok=v===x.a; if(ok)score++; selected[i]=v;
+ [...$('opts').children].forEach(el=>{el.disabled=true; if(el.textContent.slice(3)===x.a)el.classList.add('correct');}); b.classList.add(ok?'correct':'wrong'); $('feedback').textContent=ok?'✓ Chính xác!':`✗ Chưa đúng. Đáp án: ${x.a}`; $('feedback').style.color=ok?'#16a34a':'#dc2626'; $('scoreTop').textContent=`${score} điểm`; $('next').disabled=false; }
+function result(){ $('quizCard').classList.add('hidden'); $('resultCard').classList.remove('hidden'); $('score').textContent=`${score}/${questions.length}`; $('progressBar').style.width='100%'; $('resultText').textContent=`${$('name').value.trim()} • Hoàn thành bài kiểm tra`;
+ $('review').innerHTML=''; questions.forEach((x,n)=>{ const d=document.createElement('div'); d.className='review-item'; const mine=selected[n]||'Chưa trả lời'; d.innerHTML=`<strong>${n+1}. ${mine===x.a?'✓':'✗'} “${x.vi}”</strong><div>Đáp án: ${x.a}</div>`; $('review').appendChild(d); }); }
+function reset(){ i=0; score=0; selected=[]; locked=false; $('resultCard').classList.add('hidden'); $('quizCard').classList.add('hidden'); $('studentCard').classList.remove('hidden'); $('nameError').textContent=''; window.scrollTo({top:0,behavior:'smooth'}); }
+$('start').onclick=()=>{ const v=$('name').value.trim(); if(!v){$('nameError').textContent='Vui lòng nhập họ và tên.'; $('nameError').style.color='#dc2626'; return;} $('nameError').textContent=''; $('studentCard').classList.add('hidden'); $('quizCard').classList.remove('hidden'); i=0;score=0;selected=[];render();window.scrollTo({top:0,behavior:'smooth'}); };
+$('next').onclick=()=>{ if(!locked)return; if(i===questions.length-1)result(); else{i++;render();window.scrollTo({top:0,behavior:'smooth'});} };
+$('restart').onclick=reset; $('again').onclick=reset;
+render();
+</script>
+</body>
+</html>
